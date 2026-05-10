@@ -1,0 +1,64 @@
+import { Request, Response, NextFunction } from "express";
+import ApiResponse from "@/common/utils/api-response";
+import { CreatePollDto } from "./polls.dto";
+import * as pollsService from "./polls.service";
+
+export async function createPoll(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { errors, value } = CreatePollDto.validate(req.body);
+        if (errors) return res.status(400).json({ errors });
+
+        const userId = (req as any).user.sub;
+        const poll = await pollsService.createPoll(userId, value);
+
+        return ApiResponse.created(res, "Poll created successfully", poll);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getMyPolls(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userId = (req as any).user.sub;
+        const polls = await pollsService.getPollsByCreatorId(userId);
+        return ApiResponse.ok(res, "Polls retrieved successfully", polls);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getPollById(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { id } = req.params;
+        const poll = await pollsService.getPollByIdOrLink(id);
+        if (!poll) return res.status(404).json({ message: "Poll not found" });
+
+        return ApiResponse.ok(res, "Poll retrieved successfully", poll);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function publishPoll(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { id } = req.params;
+        const userId = (req as any).user.sub;
+        
+        await pollsService.publishPoll(userId, id);
+        return ApiResponse.ok(res, "Poll published successfully", { id });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getPollAnalytics(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { id } = req.params;
+        const userId = (req as any).user.sub;
+        
+        const analytics = await pollsService.getPollAnalytics(userId, id);
+        return ApiResponse.ok(res, "Poll analytics retrieved", analytics);
+    } catch (error) {
+        next(error);
+    }
+}
