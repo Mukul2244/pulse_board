@@ -6,9 +6,13 @@ import { usersTable } from "@/common/db/schema";
 export async function findUserByEmail(
     email: string
 ) {
-    return db.query.usersTable.findFirst({
-        where: eq(usersTable.email, email),
-    });
+    const [user] = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.email, email))
+        .limit(1);
+
+    return user;
 }
 
 export async function createUser(data: any) {

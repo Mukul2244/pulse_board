@@ -30,7 +30,7 @@ export async function getMyPolls(req: Request, res: Response, next: NextFunction
 export async function getPollById(req: Request, res: Response, next: NextFunction) {
     try {
         const { id } = req.params;
-        const poll = await pollsService.getPollByIdOrLink(id);
+        const poll = await pollsService.getPollByIdOrLink(id as string);
         if (!poll) return res.status(404).json({ message: "Poll not found" });
 
         return ApiResponse.ok(res, "Poll retrieved successfully", poll);
@@ -44,7 +44,7 @@ export async function publishPoll(req: Request, res: Response, next: NextFunctio
         const { id } = req.params;
         const userId = (req as any).user.sub;
         
-        await pollsService.publishPoll(userId, id);
+        await pollsService.publishPoll(userId, id as string);
         return ApiResponse.ok(res, "Poll published successfully", { id });
     } catch (error) {
         next(error);
@@ -53,10 +53,10 @@ export async function publishPoll(req: Request, res: Response, next: NextFunctio
 
 export async function getPollAnalytics(req: Request, res: Response, next: NextFunction) {
     try {
-        const { id } = req.params;
+        const { id } = req.params;;
         const userId = (req as any).user.sub;
         
-        const analytics = await pollsService.getPollAnalytics(userId, id);
+        const analytics = await pollsService.getPollAnalytics(userId, id as string);
         return ApiResponse.ok(res, "Poll analytics retrieved", analytics);
     } catch (error) {
         next(error);

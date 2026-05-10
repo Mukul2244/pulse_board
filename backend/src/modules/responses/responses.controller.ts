@@ -20,7 +20,7 @@ export async function submitResponse(req: Request, res: Response, next: NextFunc
             }
         }
 
-        const response = await responsesService.submitResponse(pollId, respondentId, anonToken, answers);
+        const response = await responsesService.submitResponse(pollId as string, respondentId, anonToken, answers);
         return ApiResponse.created(res, "Response submitted successfully", response);
     } catch (error) {
         next(error);
