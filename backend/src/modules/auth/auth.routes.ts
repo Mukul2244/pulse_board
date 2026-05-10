@@ -9,11 +9,7 @@ import {
 
 const router: RouterType = Router();
 
-router.post(
-    "/register",
-    registerController
-);
-
+router.post("/register", registerController);
 router.post("/login", loginController);
 router.post("/refresh-token", refreshTokenController);
 
