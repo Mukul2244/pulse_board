@@ -8,7 +8,7 @@ class BaseDto {
         if (!result.success) {
 
             return {
-                errors: result.error,
+                errors: result.error.flatten(),
                 value: null,
             };
         }

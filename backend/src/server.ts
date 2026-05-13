@@ -11,7 +11,7 @@ async function main() {
 
         initializeSocket(server);
 
-        const PORT: number = Number(process.env.PORT) || 8080
+        const PORT: number = Number(process.env.PORT) || 8000
 
         server.listen(PORT, () => {
             console.log(`Http server is running on PORT ${PORT}`)

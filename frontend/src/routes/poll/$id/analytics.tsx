@@ -1,7 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { apiClient } from '../../../api/client'
 import { io, Socket } from 'socket.io-client'
+import { GlassCard, ShimmerButton } from '@/components/ui/aceternity'
+import { ChevronLeft, Users, Wifi, WifiOff, Share2, Trophy } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 export const Route = createFileRoute('/poll/$id/analytics')({ component: Analytics })
 
@@ -9,76 +12,128 @@ function Analytics() {
   const { id } = Route.useParams()
   const [poll, setPoll] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [connected, setConnected] = useState(false)
+  const [publishing, setPublishing] = useState(false)
 
   useEffect(() => {
-    // 1. Fetch initial poll state
-    apiClient.get(`/polls/${id}`).then(res => {
-      setPoll(res.data.data)
-      setLoading(false)
-    })
-
-    // 2. Setup WebSocket connection
-    const socket: Socket = io('http://localhost:3000') // Replace with env variable in production
-    
+    apiClient.get(`/polls/${id}`).then(res => setPoll(res.data.data)).finally(() => setLoading(false))
+    const socket: Socket = io('http://localhost:3000')
+    socket.on('connect', () => setConnected(true))
+    socket.on('disconnect', () => setConnected(false))
     socket.emit('subscribe_poll', id)
-
-    socket.on('poll_updated', (updatedData) => {
-      console.log('Real-time update received:', updatedData)
-      setPoll(updatedData)
-    })
-
-    return () => {
-      socket.disconnect()
-    }
+    socket.on('poll_updated', setPoll)
+    return () => { socket.disconnect() }
   }, [id])
 
-  if (loading) return <div>Loading Analytics...</div>
-  if (!poll) return <div>Data not found</div>
+  const publishResults = async () => {
+    setPublishing(true)
+    try { await apiClient.put(`/polls/${id}/publish-results`); setPoll((p: any) => ({ ...p, resultsPublished: true })) }
+    catch { alert('Failed to publish results') } finally { setPublishing(false) }
+  }
+
+  if (loading) return (
+    <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
+      {[1,2,3].map(i => <div key={i} className="h-32 rounded-2xl bg-muted animate-pulse" />)}
+    </div>
+  )
+  if (!poll) return <div className="flex items-center justify-center min-h-[60vh] text-muted-foreground">Poll not found</div>
+
+  const totalResponses = poll.responses?.length ?? 0
+  const isOwner = !!localStorage.getItem('accessToken')
 
   return (
-    <div className="max-w-4xl mx-auto w-full pt-10">
-      <div className="bg-[#0f172a] p-8 rounded-xl border border-[#334155] shadow-lg mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{poll.title} - Analytics</h1>
-          <p className="text-gray-400">Real-time voting results</p>
-        </div>
-        <div className="bg-[#1e293b] px-6 py-3 rounded-lg border border-[#334155] text-center">
-          <span className="block text-sm text-gray-400 mb-1">Total Responses</span>
-          <span className="text-3xl font-bold text-blue-400">{poll.responses?.length || 0}</span>
-        </div>
+    <div className="max-w-4xl mx-auto w-full px-4 py-10">
+      <Link to="/dashboard">
+        <button className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors">
+          <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
+      </Link>
+
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+        <GlassCard glow="primary" className="p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h1 className="text-2xl font-bold tracking-tight">{poll.title}</h1>
+                <span className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium border ${
+                  connected ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
+                }`}>
+                  {connected ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+                  {connected ? 'Live' : 'Offline'}
+                </span>
+                {poll.resultsPublished && (
+                  <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-primary/10 text-primary border border-primary/20">
+                    <Trophy className="w-3 h-3" /> Published
+                  </span>
+                )}
+              </div>
+              <p className="text-muted-foreground text-sm">Real-time voting results</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <GlassCard className="px-5 py-3 flex items-center gap-3">
+                <Users className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="text-2xl font-bold leading-none">{totalResponses}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">responses</p>
+                </div>
+              </GlassCard>
+            </div>
+          </div>
+        </GlassCard>
+      </motion.div>
+
+      {/* Share + Publish row */}
+      <div className="flex items-center gap-3 mb-6">
+        <GlassCard className="flex-1 flex items-center gap-2 px-4 py-2.5">
+          <Share2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          <span className="text-xs text-muted-foreground truncate flex-1">{window.location.origin}/poll/{id}</span>
+          <button onClick={() => navigator.clipboard.writeText(`${window.location.origin}/poll/${id}`)}
+            className="text-xs text-primary hover:text-primary/80 font-medium shrink-0 transition-colors">Copy</button>
+        </GlassCard>
+        {isOwner && !poll.resultsPublished && (
+          <ShimmerButton onClick={publishResults} disabled={publishing} className="h-9 px-4 text-xs shrink-0">
+            {publishing ? 'Publishing…' : '🏆 Publish Results'}
+          </ShimmerButton>
+        )}
       </div>
 
-      <div className="grid gap-6">
+      {/* Questions */}
+      <div className="space-y-5">
         {poll.questions?.map((q: any, i: number) => {
-          // Calculate total votes for this specific question
-          const totalVotes = q.options?.reduce((sum: number, opt: any) => sum + (opt._count?.responses || 0), 0) || 0
+          const totalVotes = q.options?.reduce((s: number, o: any) => s + (o._count?.responses || 0), 0) || 0
+          const maxVotes = Math.max(...(q.options?.map((o: any) => o._count?.responses || 0) ?? [0]))
 
           return (
-            <div key={q.id} className="bg-[#0f172a] p-6 rounded-xl border border-[#334155]">
-              <h3 className="font-semibold text-xl mb-6">{i + 1}. {q.text}</h3>
-              
-              <div className="space-y-4">
-                {q.options?.map((opt: any) => {
-                  const votes = opt._count?.responses || 0
-                  const percentage = totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100)
-                  
-                  return (
-                    <div key={opt.id} className="relative">
-                      <div className="flex justify-between text-sm mb-1 z-10 relative">
-                        <span className="font-medium px-2">{opt.text}</span>
-                        <span className="text-gray-400 px-2">{votes} votes ({percentage}%)</span>
+            <motion.div key={q.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+              <GlassCard className="p-6">
+                <h3 className="font-semibold mb-5">{i + 1}. {q.text}</h3>
+                <div className="space-y-3">
+                  {q.options?.map((opt: any) => {
+                    const votes = opt._count?.responses || 0
+                    const pct = totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100)
+                    const isLeading = totalVotes > 0 && votes === maxVotes
+
+                    return (
+                      <div key={opt.id}>
+                        <div className="flex justify-between text-sm mb-1.5">
+                          <span className={`font-medium ${isLeading ? 'text-primary' : 'text-foreground/80'}`}>
+                            {isLeading && totalVotes > 0 && '🏆 '}{opt.text}
+                          </span>
+                          <span className="text-muted-foreground">{votes} · {pct}%</span>
+                        </div>
+                        <div className="h-7 w-full bg-muted rounded-xl overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7, ease: 'easeOut' }}
+                            className={`h-full rounded-xl ${isLeading ? 'bg-gradient-to-r from-primary to-secondary' : 'bg-muted-foreground/30'}`}
+                          />
+                        </div>
                       </div>
-                      <div className="h-8 w-full bg-[#1e293b] rounded overflow-hidden">
-                        <div 
-                          className="h-full bg-blue-600/50 transition-all duration-500 ease-out" 
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+                    )
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">{totalVotes} total vote{totalVotes !== 1 ? 's' : ''}</p>
+              </GlassCard>
+            </motion.div>
           )
         })}
       </div>

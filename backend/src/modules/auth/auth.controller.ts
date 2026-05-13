@@ -1,3 +1,4 @@
+import { Request, Response, NextFunction } from "express";
 import ApiResponse from "@/common/utils/api-response";
 
 import {
@@ -8,23 +9,16 @@ import {
 
 import * as authService from "./auth.service";
 
-export async function registerController(
-    req,
-    res,
-    next
-) {
+export async function registerController(req: Request, res: Response, next: NextFunction) {
     try {
-        const { errors, value } =
-            RegisterDto.validate(req.body);
+        const { errors, value } = RegisterDto.validate(req.body);
 
         if (errors) {
             return res.status(400).json({
                 errors,
             });
         }
-
-        const user =
-            await authService.register(value);
+        const user = await authService.register(value);
 
         return ApiResponse.created(
             res,
@@ -36,11 +30,7 @@ export async function registerController(
     }
 }
 
-export async function loginController(
-    req,
-    res,
-    next
-) {
+export async function loginController(req: Request, res: Response, next: NextFunction) {
     try {
         const { errors, value } =
             LoginDto.validate(req.body);
@@ -63,11 +53,7 @@ export async function loginController(
         next(error);
     }
 }
-export async function refreshTokenController(
-    req,
-    res,
-    next
-) {
+export async function refreshTokenController(req: Request, res: Response, next: NextFunction) {
     try {
         const { errors, value } = RefreshTokenDto.validate(req.body);
 

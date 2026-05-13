@@ -8,6 +8,13 @@
       "when": 1774800246473,
       "tag": "0000_married_smasher",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778437652699,
+      "tag": "0001_boring_nightmare",
+      "breakpoints": true
     }
   ]
 }

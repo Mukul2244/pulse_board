@@ -1,17 +1,21 @@
 import express, { type Express } from 'express'
-import { Server } from 'socket.io';
-
+import cors from 'cors';
 import authRouter from './modules/auth/auth.routes'
 import pollsRouter from './modules/polls/polls.routes'
 import questionsRouter from './modules/questions/questions.routes'
 import optionsRouter from './modules/options/options.routes'
 import responsesRouter from './modules/responses/responses.routes'
+import errorMiddleware from './common/middleware/error.middleware';
 
 export function createApplication(): Express {
     const app = express()
 
     // Middlewares
     app.use(express.json())
+    app.use(cors({
+        origin: '*',
+        credentials: true
+    }));
 
 
     // Routes
@@ -24,6 +28,9 @@ export function createApplication(): Express {
     app.use('/api/polls/:pollId/questions', questionsRouter)
     app.use('/api/questions/:questionId/options', optionsRouter)
     app.use('/api/polls/:pollId/responses', responsesRouter)
+
+
+    app.use(errorMiddleware);
 
     return app
 }

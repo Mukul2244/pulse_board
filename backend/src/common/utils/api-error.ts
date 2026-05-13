@@ -1,15 +1,18 @@
 class ApiError extends Error {
     public statusCode: number;
+    public errors?: unknown;
 
     constructor(
         statusCode: number,
-        message: string
+        message: string,
+        errors?: unknown
     ) {
         super(message);
 
         this.name = "ApiError";
 
         this.statusCode = statusCode;
+        this.errors = errors;
 
         Error.captureStackTrace?.(
             this,
@@ -17,8 +20,8 @@ class ApiError extends Error {
         );
     }
 
-    static badRequest(message = "Bad Request") {
-        return new ApiError(400, message);
+    static badRequest(message = "Bad Request",  errors?: unknown) {
+        return new ApiError(400, message, errors);
     }
 
     static unauthorized(message = "Unauthorized") {

@@ -1,19 +1,96 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
 
-@theme {
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-bg-deep: #050505;
-  --color-bg-base: #0f172a;
-  --color-bg-surface: #1e293b;
-  --color-text-base: #e2e8f0;
-  --color-text-muted: #94a3b8;
-  --color-border: #334155;
+@custom-variant dark (&:is(.dark *));
+
+/* ── Two-color theme: Orange (primary) + Amber (secondary) ── */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 10% 6%;
+  --card: 0 0% 98%;
+  --card-foreground: 20 10% 6%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 10% 6%;
+  --primary: 25 95% 53%;         /* orange-500 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 38 92% 50%;       /* amber-500 */
+  --secondary-foreground: 20 10% 6%;
+  --muted: 30 10% 94%;
+  --muted-foreground: 25 8% 46%;
+  --accent: 38 92% 94%;
+  --accent-foreground: 25 95% 30%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 25 10% 88%;
+  --input: 25 10% 88%;
+  --ring: 25 95% 53%;
+  --radius: 0.75rem;
+
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-border: rgba(0,0,0,0.08);
 }
 
-body {
-  @apply bg-[#050505] text-[#e2e8f0];
-  margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+.dark {
+  --background: 20 10% 4%;
+  --foreground: 30 10% 95%;
+  --card: 20 8% 7%;
+  --card-foreground: 30 10% 95%;
+  --popover: 20 8% 7%;
+  --popover-foreground: 30 10% 95%;
+  --primary: 25 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 38 92% 50%;
+  --secondary-foreground: 20 10% 6%;
+  --muted: 20 6% 12%;
+  --muted-foreground: 25 5% 55%;
+  --accent: 25 60% 14%;
+  --accent-foreground: 38 92% 75%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 20 6% 14%;
+  --input: 20 6% 14%;
+  --ring: 25 95% 53%;
+
+  --glass-bg: rgba(18,10,5,0.75);
+  --glass-border: rgba(255,200,100,0.07);
+}
+
+@theme inline {
+  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 2);
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+}
+
+/* Glass utility */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }

@@ -5,11 +5,8 @@ import * as pollsService from "./polls.service";
 
 export async function createPoll(req: Request, res: Response, next: NextFunction) {
     try {
-        const { errors, value } = CreatePollDto.validate(req.body);
-        if (errors) return res.status(400).json({ errors });
-
         const userId = (req as any).user.sub;
-        const poll = await pollsService.createPoll(userId, value);
+        const poll = await pollsService.createPoll(userId, req.body);
 
         return ApiResponse.created(res, "Poll created successfully", poll);
     } catch (error) {
@@ -43,7 +40,7 @@ export async function publishPoll(req: Request, res: Response, next: NextFunctio
     try {
         const { id } = req.params;
         const userId = (req as any).user.sub;
-        
+
         await pollsService.publishPoll(userId, id as string);
         return ApiResponse.ok(res, "Poll published successfully", { id });
     } catch (error) {
@@ -55,7 +52,7 @@ export async function getPollAnalytics(req: Request, res: Response, next: NextFu
     try {
         const { id } = req.params;;
         const userId = (req as any).user.sub;
-        
+
         const analytics = await pollsService.getPollAnalytics(userId, id as string);
         return ApiResponse.ok(res, "Poll analytics retrieved", analytics);
     } catch (error) {
