@@ -33,7 +33,7 @@ function RegisterPage() {
 
   const onSubmit = async (data: F) => {
     try {
-    //   await apiClient.post("/auth/register", data);
+      await apiClient.post("/auth/register", data);
       navigate({ to: "/login" });
     } catch {
       alert("Registration failed. Try a different email.");

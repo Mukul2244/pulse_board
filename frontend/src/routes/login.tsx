@@ -36,7 +36,6 @@ function LoginPage() {
     <div className="relative flex-1 flex items-center justify-center min-h-[calc(100vh-56px)] overflow-hidden bg-background">
       <BackgroundBeams />
 
-      {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[400px] bg-primary/8 blur-[120px] rounded-full" />
       </div>
