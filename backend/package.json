@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "npm run db:migrate && node dist/index.js",
+    "start": "npm run db:migrate && node dist/server.js",
     "build": "tsc -p .",
     "dev": "tsx watch src/server.ts",
     "studio": "drizzle-kit studio",
