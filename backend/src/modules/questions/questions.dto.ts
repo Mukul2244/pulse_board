@@ -14,6 +14,6 @@ export class CreateQuestionDto extends BaseDto {
         order: z
             .number()
             .int()
-            .positive(),
+            .nonnegative("Order must be 0 or greater"),
     });
 }

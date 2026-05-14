@@ -8,7 +8,7 @@ import validate from "@/common/middleware/validate.middleware";
 
 import { CreatePollDto } from "./polls.dto";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router
     .post(

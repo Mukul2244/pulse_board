@@ -1,5 +1,4 @@
 import { Router } from "express";
-import type { Router as RouterType } from "express";
 
 import {
     loginController,
@@ -7,7 +6,7 @@ import {
     refreshTokenController,
 } from "./auth.controller";
 
-const router: RouterType = Router();
+const router = Router();
 
 router.post("/register", registerController);
 router.post("/login", loginController);
