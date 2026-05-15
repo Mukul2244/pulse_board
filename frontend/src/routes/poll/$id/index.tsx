@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { apiClient } from "../../../api/client";
 import { GlassCard, ShimmerButton } from "@/components/ui/aceternity";
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/poll/$id/")({ component: TakePoll });
 
 function TakePoll() {
   const { id } = Route.useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [poll, setPoll] = useState<any>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);

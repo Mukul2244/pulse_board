@@ -21,7 +21,7 @@ function Analytics() {
   const { id } = Route.useParams();
   const [poll, setPoll] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [connected, setConnected] = useState(false);
+  const [connected, _] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
   // usePollSocket(id);
