@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "npm run db:migrate && node dist/server.js",
-    "build": "tsc -p .",
+    "build": "tsc -p . && tsc-alias",
     "dev": "tsx watch src/server.ts",
     "studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
