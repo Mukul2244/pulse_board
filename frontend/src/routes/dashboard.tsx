@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { apiClient } from "../api/client";
+import { API } from "../api";
+import { toast } from "sonner";
 import { GlassCard, AnimatedNumber } from "@/components/ui/aceternity";
 import {
   PlusCircle,
@@ -24,11 +25,12 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const fetchPolls = async () => {
     try {
-      const response = await apiClient.get("/polls");
+      const response = await API.polls.getAll();
       setPolls(response.data.data || []);
       console.log(response);
     } catch (error) {
       setPolls([]);
+      toast.error("Error fetching polls");
       console.error("Error fetching polls:", error);
     } finally {
       setLoading(false);
@@ -80,15 +82,18 @@ function Dashboard() {
     },
   ];
 
-  const copyLink = (id: string) =>
+  const copyLink = (id: string) => {
     navigator.clipboard.writeText(`${window.location.origin}/poll/${id}`);
+    toast.success("Link copied to clipboard");
+  };
   const deletePoll = async (id: string) => {
     if (!confirm("Delete this poll?")) return;
     try {
-      await apiClient.delete(`/polls/${id}`);
+      await API.polls.delete(id);
       setPolls((p) => p.filter((x) => x.id !== id));
+      toast.success("Poll deleted successfully");
     } catch {
-      alert("Failed to delete");
+      toast.error("Failed to delete poll");
     }
   };
   const fmt = (d: string) =>

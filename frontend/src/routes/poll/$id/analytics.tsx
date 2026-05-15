@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { apiClient } from "../../../api/client";
+import { API } from "../../../api";
+import { toast } from "sonner";
 import { GlassCard, ShimmerButton } from "@/components/ui/aceternity";
 import {
   ChevronLeft,
@@ -11,7 +12,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
-// import { usePollSocket } from "@/hooks/usePollSocket";
+import { usePollSocket } from "@/hooks/usePollSocket";
 
 export const Route = createFileRoute("/poll/$id/analytics")({
   component: Analytics,
@@ -21,25 +22,26 @@ function Analytics() {
   const { id } = Route.useParams();
   const [poll, setPoll] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [connected, _] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
-  // usePollSocket(id);
+  const { isConnected, isPublished, analytics } = usePollSocket(id, null);
 
   useEffect(() => {
-    apiClient
-      .get(`/polls/${id}`)
-      .then((res) => setPoll(res.data.data))
+    API.polls.getById(id)
+      .then((res) => {
+        setPoll(res.data.data);
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
   const publishResults = async () => {
     setPublishing(true);
     try {
-      await apiClient.put(`/polls/${id}/publish-results`);
+      await API.polls.publishResults(id);
       setPoll((p: any) => ({ ...p, resultsPublished: true }));
+      toast.success("Results published successfully");
     } catch {
-      alert("Failed to publish results");
+      toast.error("Failed to publish results");
     } finally {
       setPublishing(false);
     }
@@ -85,19 +87,19 @@ function Analytics() {
                 </h1>
                 <span
                   className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium border ${
-                    connected
+                    isConnected
                       ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                       : "bg-muted text-muted-foreground border-border"
                   }`}
                 >
-                  {connected ? (
+                  {isConnected ? (
                     <Wifi className="w-3 h-3" />
                   ) : (
                     <WifiOff className="w-3 h-3" />
                   )}
-                  {connected ? "Live" : "Offline"}
+                  {isConnected ? "Live" : "Offline"}
                 </span>
-                {poll.resultsPublished && (
+                {(poll.resultsPublished || isPublished) && (
                   <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-primary/10 text-primary border border-primary/20">
                     <Trophy className="w-3 h-3" /> Published
                   </span>
@@ -112,7 +114,7 @@ function Analytics() {
                 <Users className="w-4 h-4 text-primary" />
                 <div>
                   <p className="text-2xl font-bold leading-none">
-                    {totalResponses}
+                    {analytics?.totalResponses ?? totalResponses}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     responses
@@ -142,7 +144,7 @@ function Analytics() {
             Copy
           </button>
         </GlassCard>
-        {isOwner && !poll.resultsPublished && (
+        {isOwner && !(poll.resultsPublished || isPublished) && (
           <ShimmerButton
             onClick={publishResults}
             disabled={publishing}
@@ -161,10 +163,6 @@ function Analytics() {
               (s: number, o: any) => s + (o._count?.responses || 0),
               0,
             ) || 0;
-          const maxVotes = Math.max(
-            ...(q.options?.map((o: any) => o._count?.responses || 0) ?? [0]),
-          );
-
           return (
             <motion.div
               key={q.id}
@@ -178,12 +176,21 @@ function Analytics() {
                 </h3>
                 <div className="space-y-3">
                   {q.options?.map((opt: any) => {
-                    const votes = opt._count?.responses || 0;
+                    const realtimeCount = analytics?.optionCounts?.find(x => x.optionId === opt.id)?.count;
+                    const votes = realtimeCount ?? (opt._count?.responses || 0);
+
+                    // Re-calculate totalVotes and maxVotes properly if using analytics
+                    const qOptionsCount = q.options?.map((o: any) => 
+                      analytics?.optionCounts?.find(x => x.optionId === o.id)?.count ?? (o._count?.responses || 0)
+                    ) || [];
+                    const updatedTotalVotes = qOptionsCount.reduce((a: number, b: number) => a + b, 0);
+                    const updatedMaxVotes = Math.max(...qOptionsCount, 0);
+
                     const pct =
-                      totalVotes === 0
+                      updatedTotalVotes === 0
                         ? 0
-                        : Math.round((votes / totalVotes) * 100);
-                    const isLeading = totalVotes > 0 && votes === maxVotes;
+                        : Math.round((votes / updatedTotalVotes) * 100);
+                    const isLeading = updatedTotalVotes > 0 && votes === updatedMaxVotes;
 
                     return (
                       <div key={opt.id}>

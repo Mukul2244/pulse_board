@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { apiClient } from "../../../api/client";
+import { API } from "../../../api";
+import { toast } from "sonner";
 import { GlassCard, ShimmerButton } from "@/components/ui/aceternity";
 import { CheckCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
@@ -17,13 +18,14 @@ function TakePoll() {
   const [expired, setExpired] = useState(false);
   const fetchPoll = async () => {
     try {
-      const response = await apiClient.get(`/polls/${id}`);
+      const response = await API.polls.getById(id);
       const data = response.data.data;
       setPoll(data);
       if (data.expiresAt && new Date(data.expiresAt) < new Date())
         setExpired(true);
     } catch (error) {
       console.error("Failed to fetch poll", error);
+      toast.error("Failed to fetch poll");
     } finally {
       setLoading(false);
     }
@@ -40,12 +42,14 @@ function TakePoll() {
         questionId: qId,
         optionId: oId,
       }));
-      await apiClient.post(`/polls/${id}/responses`, {
+      await API.polls.submitResponse(id, {
         answers: formattedAnswers,
       });
+      toast.success("Response submitted successfully");
       // navigate({ to: "/poll/$id/analytics", params: { id } });
     } catch (error) {
       console.error("Failed to submit response", error);
+      toast.error("Failed to submit response");
     } finally {
       setSubmitting(false);
     }

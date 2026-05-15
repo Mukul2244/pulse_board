@@ -6,7 +6,8 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { apiClient } from "../../api/client";
+import { API } from "../../api";
+import { toast } from "sonner";
 import { PlusCircle, Trash2, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -66,19 +67,19 @@ function CreatePoll() {
         payload.expiresAt = new Date(values.expiresAt).toISOString();
       }
 
-      const { data: pollData } = await apiClient.post("/polls", payload);
+      const { data: pollData } = await API.polls.create(payload);
       const pollId = pollData.data.id;
 
       for (let i = 0; i < values.questions.length; i++) {
         const q = values.questions[i];
-        const { data: qData } = await apiClient.post(
-          `/polls/${pollId}/questions`,
+        const { data: qData } = await API.questions.create(
+          pollId,
           { text: q.text, order: i, isMandatory: q.mandatory },
         );
         const qId = qData.data.id;
         await Promise.all(
           q.options.map((opt, oi) =>
-            apiClient.post(`/questions/${qId}/options`, {
+            API.questions.addOption(qId, {
               text: opt.text,
               order: oi,
             }),
@@ -86,10 +87,11 @@ function CreatePoll() {
         );
       }
 
-      await apiClient.put(`/polls/${pollId}/publish`);
+      await API.polls.publish(pollId);
+      toast.success("Poll created successfully!");
       navigate({ to: "/dashboard" });
     } catch {
-      alert("Error creating poll");
+      toast.error("Error creating poll");
     }
   };
 

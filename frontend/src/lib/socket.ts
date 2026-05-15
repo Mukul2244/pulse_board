@@ -1,6 +1,8 @@
 import { io } from "socket.io-client";
 
-export const socket = io(import.meta.env.VITE_WS_URL, {
+const WS_URL = import.meta.env.VITE_WS_URL || "http://localhost:8000";
+
+export const socket = io(WS_URL, {
   withCredentials: true,
   transports: ["websocket", "polling"],
   autoConnect: true,

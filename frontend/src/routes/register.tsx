@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiClient } from "../api/client";
+import { API } from "../api";
+import { toast } from "sonner";
 import {
   Spotlight,
   GlassCard,
@@ -33,10 +34,11 @@ function RegisterPage() {
 
   const onSubmit = async (data: F) => {
     try {
-      await apiClient.post("/auth/register", data);
+      await API.auth.register(data);
+      toast.success("Registration successful! Please log in.");
       navigate({ to: "/login" });
     } catch {
-      alert("Registration failed. Try a different email.");
+      toast.error("Registration failed. Try a different email.");
     }
   };
 

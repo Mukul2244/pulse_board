@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiClient } from "../api/client";
+import { API } from "../api";
+import { toast } from "sonner";
 import {
   BackgroundBeams,
   GlassCard,
@@ -24,10 +25,12 @@ function LoginPage() {
 
   const onSubmit = async (data: F) => {
     try {
-      const resp = await apiClient.post("/auth/login", data);
+      const resp = await API.auth.login(data);
       localStorage.setItem("accessToken", resp.data.data.accessToken);
+      toast.success("Login successful");
       navigate({ to: "/dashboard" });
     } catch (error) {
+      toast.error("Login failed. Check your credentials.");
       console.error("Login failed:", error);
     }
   };
