@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/aceternity";
 import { Activity, CheckCircle, BarChart3, Zap, Shield } from "lucide-react";
 
-type F = { name: string; email: string; password: string };
+type F = { firstName: string; lastName: string; email: string; password: string };
 export const Route = createFileRoute("/register")({ component: RegisterPage });
 
 const perks = [
@@ -44,14 +44,12 @@ function RegisterPage() {
     <DotBackground className="flex-1 flex items-center justify-center min-h-[calc(100vh-56px)] relative overflow-hidden">
       <Spotlight />
 
-      {/* Ambient */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-secondary/8 blur-[120px] rounded-full" />
         <div className="absolute bottom-1/4 left-1/4 w-[300px] h-[300px] bg-primary/6 blur-[100px] rounded-full" />
       </div>
 
       <div className="relative z-10 w-full max-w-4xl mx-4 grid lg:grid-cols-2 gap-8 items-center py-10">
-        {/* Left — branding with tilt */}
         <TiltCard className="hidden lg:block">
           <GlassCard glow="secondary" className="p-8 h-full">
             <div className="flex items-center gap-2 mb-8">
@@ -86,7 +84,6 @@ function RegisterPage() {
           </GlassCard>
         </TiltCard>
 
-        {/* Right — form */}
         <GlassCard glow="primary" className="p-8">
           <BorderBeam
             colorFrom="hsl(var(--secondary))"
@@ -104,10 +101,20 @@ function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {[
               {
-                name: "name" as const,
-                label: "Name",
+                name: "firstName" as const,
+                label: "First Name",
                 type: "text",
-                placeholder: "John Doe",
+                placeholder: "Your first name",
+                rules: {
+                  required: "Required",
+                  minLength: { value: 2, message: "Min 2 chars" },
+                },
+              },
+              {
+                name: "lastName" as const,
+                label: "Last Name",
+                type: "text",
+                placeholder: "Your last name",
                 rules: {
                   required: "Required",
                   minLength: { value: 2, message: "Min 2 chars" },
