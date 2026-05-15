@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db } from "@/common/db";
+import { db } from "@/common/db/main";
 import { questionsTable } from "@/common/db/schema";
 
 export async function addQuestion(data: any) {

@@ -1,6 +1,7 @@
-import { db } from "@/common/db";
+import { db } from "@/common/db/main";
 import { responsesTable, answersTable } from "@/common/db/schema";
 import { nanoid } from "@/common/utils/nanoid";
+import { and, eq } from "drizzle-orm";
 
 export async function submitResponse(pollId: string, respondentId: string | null, anonToken: string | null, answers: Array<{ questionId: string, optionId: string }>) {
     return await db.transaction(async (tx) => {
@@ -24,4 +25,32 @@ export async function submitResponse(pollId: string, respondentId: string | null
 
         return { ...response, anonToken: _anonToken };
     });
+}
+
+export async function findExistingResponse(
+    pollId: string,
+    respondentId: string | null,
+    anonToken: string | null,
+) {
+    if (respondentId) {
+        // authenticated user — check by respondentId
+        return db.query.responsesTable.findFirst({
+            where: and(
+                eq(responsesTable.pollId, pollId),
+                eq(responsesTable.respondentId, respondentId),
+            ),
+        });
+    }
+
+    if (anonToken) {
+        // anonymous user — check by anonToken
+        return db.query.responsesTable.findFirst({
+            where: and(
+                eq(responsesTable.pollId, pollId),
+                eq(responsesTable.anonToken, anonToken),
+            ),
+        });
+    }
+
+    return null;
 }

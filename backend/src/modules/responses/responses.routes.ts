@@ -1,10 +1,11 @@
 import { Router } from "express";
 import * as responsesController from "./responses.controller";
+import { attachAnonymousToken } from "@/common/middleware/anonymous.middleware";
 
-const router: import("express").Router = Router();
+const router = Router({ mergeParams: true });
 
-// /api/polls/:pollId/responses
+// /api/polls/:uniqueId/responses
 // It will parse token inside controller since it can be anonymous
-router.post("/", responsesController.submitResponse);
+router.post("/", attachAnonymousToken, responsesController.submitResponse);
 
 export default router;

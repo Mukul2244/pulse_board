@@ -11,20 +11,9 @@ import * as authService from "./auth.service";
 
 export async function registerController(req: Request, res: Response, next: NextFunction) {
     try {
-        const { errors, value } = RegisterDto.validate(req.body);
+        const user = await authService.register(req.body);
 
-        if (errors) {
-            return res.status(400).json({
-                errors,
-            });
-        }
-        const user = await authService.register(value);
-
-        return ApiResponse.created(
-            res,
-            "User registered successfully",
-            user
-        );
+        return ApiResponse.created(res, "User registered successfully", user);
     } catch (error) {
         next(error);
     }

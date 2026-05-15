@@ -1,6 +1,6 @@
 import * as optionsRepository from "./options.repository";
 import ApiError from "@/common/utils/api-error";
-import { db } from "@/common/db";
+import { db } from "@/common/db/main";
 import { questionsTable, pollsTable } from "@/common/db/schema";
 import { eq } from "drizzle-orm";
 

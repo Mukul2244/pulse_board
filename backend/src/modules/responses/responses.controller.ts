@@ -5,9 +5,10 @@ import jwt from "jsonwebtoken";
 
 export async function submitResponse(req: Request, res: Response, next: NextFunction) {
     try {
-        const { pollId } = req.params;
-        const { answers, anonToken } = req.body;
-        
+        const { uniqueId } = req.params;
+        const { answers } = req.body;
+        const anonToken = (req as any).anonToken;
+
         let respondentId: string | null = null;
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -20,7 +21,8 @@ export async function submitResponse(req: Request, res: Response, next: NextFunc
             }
         }
 
-        const response = await responsesService.submitResponse(pollId as string, respondentId, anonToken, answers);
+        const response = await responsesService.submitResponse(uniqueId as string, respondentId, anonToken, answers);
+
         return ApiResponse.created(res, "Response submitted successfully", response);
     } catch (error) {
         next(error);

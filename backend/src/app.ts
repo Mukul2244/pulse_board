@@ -6,6 +6,7 @@ import questionsRouter from './modules/questions/questions.routes'
 import optionsRouter from './modules/options/options.routes'
 import responsesRouter from './modules/responses/responses.routes'
 import errorMiddleware from './common/middleware/error.middleware';
+import cookieParser from "cookie-parser";
 
 export function createApplication(): Express {
     const app = express()
@@ -13,10 +14,11 @@ export function createApplication(): Express {
     // Middlewares
     app.use(express.json())
     app.use(cors({
-        origin: '*',
-        credentials: true
+        origin: "http://localhost:5173",
+        credentials: true,
     }));
 
+    app.use(cookieParser());
 
     // Routes
     app.get('/', (req, res) => {
@@ -27,7 +29,7 @@ export function createApplication(): Express {
     app.use('/api/polls', pollsRouter)
     app.use('/api/polls/:pollId/questions', questionsRouter)
     app.use('/api/questions/:questionId/options', optionsRouter)
-    app.use('/api/polls/:pollId/responses', responsesRouter)
+    app.use('/api/polls/:uniqueId/responses', responsesRouter)
 
 
     app.use(errorMiddleware);

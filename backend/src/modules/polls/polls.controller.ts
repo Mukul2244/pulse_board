@@ -18,7 +18,14 @@ export async function getMyPolls(req: Request, res: Response, next: NextFunction
     try {
         const userId = (req as any).user.sub;
         const polls = await pollsService.getPollsByCreatorId(userId);
-        return ApiResponse.ok(res, "Polls retrieved successfully", polls);
+        const shaped = polls.map(({ questionsCount, responsesCount, ...poll }) => ({
+            ...poll,
+            _count: {
+                questions: questionsCount ?? 0,
+                responses: responsesCount ?? 0,
+            },
+        }));
+        return ApiResponse.ok(res, "Polls retrieved successfully", shaped);
     } catch (error) {
         next(error);
     }

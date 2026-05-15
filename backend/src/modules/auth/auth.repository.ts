@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 
-import { db } from "@/common/db";
+import { db } from "@/common/db/main";
 import { usersTable } from "@/common/db/schema";
 
 export async function findUserByEmail(
