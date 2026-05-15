@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const apiClient = axios.create({
-    baseURL: "https://pulseboard-production-defc.up.railway.app/api",
+    baseURL: `${import.meta.env.VITE_API_URL}/api`,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",
