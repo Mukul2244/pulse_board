@@ -76,11 +76,10 @@ export async function submitResponse(uniqueId: string, respondentId: string | nu
     anonToken,
     answers,
   );
-
   // ── 10. Emit real-time update ───────────────────────────────────────────
   const analytics = await getPollAnalytics(poll.id);
   getIO()
-    .to(`poll_${poll.id}`)
+    .to(`poll_${poll.uniqueLink}`)
     .emit("poll:updated", analytics);
 
   return response;

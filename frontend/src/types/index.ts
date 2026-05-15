@@ -21,10 +21,14 @@ export interface Stats {
 
 export interface Analytics {
   totalResponses: number;
-  optionCounts: {
-    optionId: string;
-    optionText: string;
-    count: number;
-    percentage: number;
+  questions: {
+    id: string;
+    text: string;
+    isMandatory: boolean;
+    options: {
+      id: string;
+      text: string;
+      count: number;
+    }[];
   }[];
 }

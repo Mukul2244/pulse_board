@@ -77,7 +77,21 @@ export async function getPollByIdOrLink(idOrLink: string) {
                 orderBy: asc(questionsTable.order),
                 with: {
                     options: {
-                        orderBy: asc(optionsTable.order),  // ✅ all options in same query
+                        orderBy: asc(optionsTable.order),
+
+                        with: {
+                            answers: true,
+                        },
+
+                        extras: {
+                            responsesCount: sql<number>`
+            (
+                SELECT COUNT(*)
+                FROM answers
+                WHERE answers.option_id = ${optionsTable.id}
+            )
+        `.as("responses_count"),
+                        },
                     },
                 },
             },
